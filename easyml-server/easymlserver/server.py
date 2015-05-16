@@ -91,15 +91,18 @@ def api_train_model():
 
 @app.route('/predict')
 def api_predict():
+    model_name = request.args['model_name']
+    model_type = model_data[model_name][0]
     if (model_type=='itemRecommender'):
         args = []
+        i = 1
         while 'col'+str(i) in request.args:
             args.append(request.args['col'+str(i)])
             i+=1
         if len(args)==2:
-            item_id = args[0]
-            user_id = args[1]
-            return json.dumps(itemRecommender.predict(item_id,user_id))
+            item_id = int(args[0])
+            user_id = int(args[1])
+            return json.dumps(itemRecommender.predict(model_name,item_id,user_id))
         if len(args)==1:
             isUser = False
             id = args[0]
@@ -109,9 +112,9 @@ def api_predict():
             else:
                 id = int(id)
             if not isUser:
-                return json.dumps(itemRecommender.get_similar(id))
+                return json.dumps(itemRecommender.get_similar(model_name,id))
             else:
-                return json.dumps(itemRecommender.get_recommended(id))
+                return json.dumps(itemRecommender.get_recommended(model_name,id))
                 
 
 @app.route('/predict_batch')
